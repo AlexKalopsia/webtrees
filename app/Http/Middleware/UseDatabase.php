@@ -19,9 +19,10 @@ declare(strict_types=1);
 
 namespace Fisharebest\Webtrees\Http\Middleware;
 
+use Fisharebest\Webtrees\DB;
 use Fisharebest\Webtrees\Validator;
 use Fisharebest\Webtrees\Webtrees;
-use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\Capsule\Manager;
 use PDO;
 use PDOException;
 use Psr\Http\Message\ResponseInterface;
@@ -52,7 +53,7 @@ class UseDatabase implements MiddlewareInterface
             $dbname = Webtrees::ROOT_DIR . 'data/' . $dbname . '.sqlite';
         }
 
-        $capsule = new DB();
+        $capsule = new Manager();
 
         // Newer versions of webtrees support utf8mb4.  Older ones only support 3-byte utf8
         if ($driver === 'mysql' && Validator::attributes($request)->boolean('mysql_utf8mb4', false)) {
@@ -109,15 +110,19 @@ class UseDatabase implements MiddlewareInterface
         $capsule->setAsGlobal();
 
         if ($driver === 'sqlsrv') {
-            DB::connection()->unprepared('SET language us_english'); // For timestamp columns
+            $capsule->getConnection()->unprepared('SET language us_english'); // For timestamp columns
         }
 
         try {
             // Eager-load the connection, to prevent database credentials appearing in error logs.
-            DB::connection()->getPdo();
+            Manager::connection()->getPdo();
+            $pdo = $capsule->getConnection()->getPdo();
         } catch (PDOException $exception) {
             throw new RuntimeException($exception->getMessage());
         }
+
+        $prefix = Validator::attributes($request)->string('tblpfx', '');
+        DB::connect(pdo: $pdo, prefix: $prefix);
 
         return $handler->handle($request);
     }
