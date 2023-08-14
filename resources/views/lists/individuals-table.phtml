@@ -255,6 +255,8 @@ $("#<?= e($table_id) ?>")
 
                     <!-- Death date -->
                     <?php $death_dates = $individual->getAllDeathDates() ?>
+                    <?php $death_places = $individual->getAllDeathPlaces() ?>
+                    
                     <td data-sort="<?= $individual->getEstimatedDeathDate()->julianDay() ?>">
                         <?php foreach ($death_dates as $death_date) : ?>
                             <div><?= $death_date->display($tree, null, true) ?></div>
@@ -262,6 +264,8 @@ $("#<?= e($table_id) ?>")
 
                         <?php if ($death_dates === [] && $show_estimated_dates && $individual->getEstimatedDeathDate()->minimumDate()->minimumJulianDay() < $today_jd) : ?>
                             <?= $individual->getEstimatedDeathDate()->display($tree, null, true) ?>
+                        <?php elseif ($individual->isDead()) : ?>
+                            <?= "?" ?>
                         <?php endif ?>
                     </td>
 
