@@ -469,14 +469,32 @@ class Individual extends GedcomRecord
         $birth_place = strip_tags($this->getBirthPlace()->shortName());
         $death_place = strip_tags($this->getDeathPlace()->shortName());
 
-        // Remove markup from dates.  Use UTF_FSI / UTF_PDI instead of <bdi></bdi>, as
-        // we cannot use HTML markup in title attributes.
-        $birth_date = "\u{2068}" . strip_tags($this->getBirthDate()->display()) . "\u{2069}";
-        $death_date = "\u{2068}" . strip_tags($this->getDeathDate()->display()) . "\u{2069}";
+        $birth_date = $this->getBirthDate()->display();
+        $death_date = $this->getDeathDate()->display();
 
-        // Use minimum and maximum dates - to agree with the age calculations.
-        $birth_year = $this->getBirthDate()->minimumDate()->format('%Y');
-        $death_year = $this->getDeathDate()->maximumDate()->format('%Y');
+        // Birth labeling
+        if ($birth_date === '') {
+            $birth_date = '?';
+            $birth_year = '?';
+        } else {
+            // Remove markup from date.  Use UTF_FSI / UTF_PDI instead of <bdi></bdi>, as
+            // we cannot use HTML markup in title attributes.
+            $birth_date = "\u{2068}" . strip_tags($birth_date) . "\u{2069}";
+            // Use minimum and maximum dates - to agree with the age calculations.
+            $birth_year = $this->getBirthDate()->minimumDate()->format('%Y');
+        }
+
+        // Death labeling
+        if ($death_date === '' && $this->isDead()) {
+            $death_date = '?';
+            $death_year = '?';
+        } else {
+            // Remove markup from date.  Use UTF_FSI / UTF_PDI instead of <bdi></bdi>, as
+            // we cannot use HTML markup in title attributes.
+            $death_date = "\u{2068}" . strip_tags($death_date) . "\u{2069}";
+            // Use minimum and maximum dates - to agree with the age calculations.
+            $death_year = $this->getDeathDate()->maximumDate()->format('%Y');
+        }
 
         /* I18N: A range of years, e.g. “1870–”, “1870–1920”, “–1920” */
         return I18N::translate(

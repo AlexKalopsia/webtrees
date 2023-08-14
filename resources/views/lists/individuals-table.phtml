@@ -262,6 +262,8 @@ $("#<?= e($table_id) ?>")
 
                         <?php if ($death_dates === [] && $show_estimated_dates && $individual->getEstimatedDeathDate()->minimumDate()->minimumJulianDay() < $today_jd) : ?>
                             <?= $individual->getEstimatedDeathDate()->display($tree, null, true) ?>
+                        <?php elseif ($individual->isDead()) : ?>
+                            <?= "?" ?>
                         <?php endif ?>
                     </td>
 
