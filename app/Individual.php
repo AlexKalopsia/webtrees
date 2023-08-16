@@ -472,10 +472,12 @@ class Individual extends GedcomRecord
         $birth_date = $this->getBirthDate()->display();
         $death_date = $this->getDeathDate()->display();
 
-        // Birth labeling
+        // Show "..." in the UI for missing birth and/or death dates.
+        // Some individuals will automatically be considered dead based on $MAX_ALIVE_AGE
+
         if ($birth_date === '') {
-            $birth_date = '?';
-            $birth_year = '?';
+            $birth_date = "...";
+            $birth_year = "...";
         } else {
             // Remove markup from date.  Use UTF_FSI / UTF_PDI instead of <bdi></bdi>, as
             // we cannot use HTML markup in title attributes.
@@ -483,11 +485,10 @@ class Individual extends GedcomRecord
             // Use minimum and maximum dates - to agree with the age calculations.
             $birth_year = $this->getBirthDate()->minimumDate()->format('%Y');
         }
-
-        // Death labeling
+        
         if ($death_date === '' && $this->isDead()) {
-            $death_date = '?';
-            $death_year = '?';
+            $death_date = "...";
+            $death_year = "...";
         } else {
             // Remove markup from date.  Use UTF_FSI / UTF_PDI instead of <bdi></bdi>, as
             // we cannot use HTML markup in title attributes.
